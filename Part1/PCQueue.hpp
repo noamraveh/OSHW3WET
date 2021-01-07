@@ -7,17 +7,33 @@ template <typename T>class PCQueue
 {
 
 public:
+    PCQueue(): con_in(0),pro_in(0),pro_waiting(0),qsize(0){
+        pthread_cond_init(&pro_c_, nullptr);
+        pthread_cond_init(&con_c_, nullptr);
+        pthread_mutex_init(&mutex_);
+    }
+    ~PCQueue(){
+        pthread_cond_destroy(&con_c_);
+        pthread_cond_destroy(&pro_c_);
+        pthread_mutex_destroy(&mutex_);
+    }
 	// Blocks while queue is empty. When queue holds items, allows for a single
-	// thread to enter and remove an item from the front of the queue and return it. 
+	// thread to enter and remove an item from the front of the queue and return it.
 	// Assumes multiple consumers.
 	T pop(){
         pthread_mutex_lock(&mutex_);
-        while (qsize==0){
+        while (pro_in > 0 || pro_waiting > 0 || queue_.empty()){
             pthread_cond_wait(&condvar_,&mutex_);
         }
+        con_in++;
+        pthread_mutex_unlock(&mutex_);
         T retval = queue_.front();
         queue_.pop();
+        pthread_mutex_lock(&mutex_);
+        con_in--;
         qsize--;
+        if(con_in == 0)
+            pthread_cond_signal(pro_c_);
         pthread_mutex_unlock(&mutex_);
         return retval;
 
@@ -27,9 +43,19 @@ public:
 	// Assumes single producer 
     void push(const T& item){
         pthread_mutex_lock(&mutex_);
+        pro_waiting++;
+        while(pro_waiting + pro_in > 0 )
+            pthread_cond_wait(&pro_c_,&mutex_);
+        pro_waiting--;
+        pro_in++;
+        pthread_mutex_unlock(&mutex_);
         queue_.push(item);
-        qsize++;
-        pthread_cond_signal(&condvar_);
+        pthread_mutex_lock(&mutex_);
+        pro_in--;
+        if(pro_in == 0){
+            pthread_cond_broadcast(&con_c_);
+            pthread_cond_signal(&pro_c_);
+        }
         pthread_mutex_unlock(&mutex_);
     }
 
@@ -37,7 +63,335 @@ public:
 private:
     std::queue<T> queue_;
     pthread_mutex_t mutex_;
-    pthread_cond_t condvar_;
+    pthread_cond_t con_c_;
+    pthread_cond_t pro_c_;
+    int con_in,pro_in,pro_waiting,qsize;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     int qsize = 0;
     // Add your class memebers here
 };
