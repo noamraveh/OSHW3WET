@@ -25,24 +25,24 @@ void Game::_init_game() {
 	// Create game fields - Consider using utils:read_file, utils::split
     vector<string> all_lines = utils::read_lines(file_name);
 	field_height = all_lines.size() ;
-
+	cout<<"HEIGHT" << field_height<<endl;
     pthread_mutex_init(&tasks_lock, nullptr);
     pthread_cond_init(&phase_done, nullptr);
 	pthread_mutex_init(&lock, nullptr);
-
-	vector<unsigned int> zero_vec(field_width,0);
-    curr = new vector<vector<unsigned int>> (field_height,zero_vec);
-    next = new vector<vector<unsigned int>> (field_height,zero_vec);
+    curr = new vector<vector<unsigned int>> ;
+    next = new vector<vector<unsigned int>> ;
     jobs_queue = new PCQueue<TileJob*>;
 
     vector<string> cur_line;
     vector<unsigned int> cur_line_vals;
 
     // fill curr field with input, next remains zeros (will be updated in first move)
-    for (int i=0 ;i<field_height;i++){
-        cur_line = utils::split(all_lines[i],' ');
-        if (i == 0)
-            field_width =  cur_line.size();
+    for (int i=0 ;i<field_height;i++) {
+        cur_line = utils::split(all_lines[i], ' ');
+        if (i == 0){
+            field_width = cur_line.size();
+            cout<< "WIDTH" << field_width<<endl;
+        }
         for(int j=0;j<field_width;j++){
 
             int num = std::stoi(cur_line[j]);
@@ -150,7 +150,17 @@ inline void Game::print_board(const char* header) {
 		if (header != nullptr)
 			cout << "<------------" << header << "------------>" << endl;
 
+
+        for (int i = 0; i < field_height; i++)
+        {
+            for (int j = 0; j < field_width; j++)
+            {
+                cout << (*curr)[i][j];
+            }
+            cout << endl;
+        }
 		// TODO: Print the board
+
 
         cout << u8"╔" << string(u8"═") * field_width << u8"╗" << endl;
         for (uint i = 0; i < field_height; ++i) {

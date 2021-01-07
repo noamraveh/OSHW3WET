@@ -66,6 +66,7 @@ public:
 	Game(game_params params):m_gen_num (params.n_gen),m_thread_num(params.n_thread),
 	                        file_name(params.filename),interactive_on(params.interactive_on),
 	                        print_on(params.print_on),phase(1){
+	    cout<<"HERE"<<endl;
 
     }
 	~Game() = default;
