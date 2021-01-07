@@ -7,10 +7,10 @@ template <typename T>class PCQueue
 {
 
 public:
-    PCQueue(): con_in(0),pro_in(0),pro_waiting(0),qsize(0){
+    PCQueue(): con_in(0),pro_in(0),pro_waiting(0){
         pthread_cond_init(&pro_c_, nullptr);
         pthread_cond_init(&con_c_, nullptr);
-        pthread_mutex_init(&mutex_);
+        pthread_mutex_init(&mutex_, nullptr);
     }
     ~PCQueue(){
         pthread_cond_destroy(&con_c_);
@@ -23,7 +23,7 @@ public:
 	T pop(){
         pthread_mutex_lock(&mutex_);
         while (pro_in > 0 || pro_waiting > 0 || queue_.empty()){
-            pthread_cond_wait(&condvar_,&mutex_);
+            pthread_cond_wait(&con_c_,&mutex_);
         }
         con_in++;
         pthread_mutex_unlock(&mutex_);
@@ -33,7 +33,7 @@ public:
         con_in--;
         qsize--;
         if(con_in == 0)
-            pthread_cond_signal(pro_c_);
+            pthread_cond_signal(&pro_c_);
         pthread_mutex_unlock(&mutex_);
         return retval;
 
@@ -65,7 +65,7 @@ private:
     pthread_mutex_t mutex_;
     pthread_cond_t con_c_;
     pthread_cond_t pro_c_;
-    int con_in,pro_in,pro_waiting,qsize;
+    int con_in,pro_in,pro_waiting;
 
 
 
