@@ -75,7 +75,7 @@ public:
 	    return fmin(m_thread_num,field_height);
 	}
     TileJob* getNextJob(){
-        return jobs_queue.pop();
+        return jobs_queue->pop();
     }
     pthread_mutex_t tasks_lock;
 	int tasksLeft;
@@ -106,7 +106,7 @@ protected: // All members here are protected, instead of private for testing pur
     int jobs_completed;
     pthread_cond_t phase_done;
     pthread_mutex_t lock;
-    PCQueue<TileJob*> jobs_queue;
+    PCQueue<TileJob*>* jobs_queue;
 
 
 
@@ -215,8 +215,9 @@ protected:
         return;
     }
 public:
-    explicit Working_Thread(uint thread_id,Game* game): Thread(thread_id), game(game){}
     Game* game;
+    Working_Thread(uint thread_id,Game* game): Thread(thread_id), game(game){}
+    virtual ~Working_Thread() = default;
 
 };
 #endif

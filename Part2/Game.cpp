@@ -8,6 +8,7 @@ static const char *colors[7] = {BLACK, RED, GREEN, YELLOW, BLUE, MAGENTA, CYAN};
 --------------------------------------------------------------------------------*/
 
 void Game::run() {
+    cout << "DO I ET HERE " << endl ;
 
 	_init_game(); // Starts the threads and all other variables you need
 	print_board("Initial Board");
@@ -23,7 +24,6 @@ void Game::run() {
 }
 
 void Game::_init_game() {
-
 	// Create game fields - Consider using utils:read_file, utils::split
     vector<string> all_lines = utils::read_lines(file_name);
 	field_height = all_lines.size() ;
@@ -35,6 +35,7 @@ void Game::_init_game() {
 	vector<unsigned int> zero_vec(field_width,0);
     curr = new vector<vector<unsigned int>> (field_height,zero_vec);
     next = new vector<vector<unsigned int>> (field_height,zero_vec);
+    jobs_queue = new PCQueue<TileJob*>;
 
     vector<string> cur_line;
     vector<unsigned int> cur_line_vals;
@@ -45,19 +46,23 @@ void Game::_init_game() {
         if (i == 0)
             field_width =  cur_line.size();
         for(int j=0;j<field_width;j++){
+            cout << cur_line[j] << endl;
+
             int num = std::stoi(cur_line[j]);
             cur_line_vals.push_back(num);
+
         }
         curr->push_back(cur_line_vals);
+        next->push_back(cur_line_vals);
     }
 
 	// Create & Start threads
 	m_thread_num = thread_num();
     tasksLeft = 2*m_thread_num*m_gen_num;
     for (int i=0 ; i<m_thread_num ; i++){
-	    Working_Thread thread(i,this);
-	    thread.start();
-	    m_threadpool.push_back(&thread);
+        Working_Thread* thread = new Working_Thread(i,this);
+	    thread->start();
+	    m_threadpool.push_back(thread);
 	}
 	// Testing of your implementation will presume all threads are started here
 }
@@ -73,11 +78,11 @@ void Game::_step(uint curr_gen) {
     for ( int i=0 ; i < m_thread_num ; i ++ ){
         if (i == m_thread_num - 1){
             TileJob* job = new TileJob(this,i*tile_size,field_height-1);
-            jobs_queue.push(job);
+            jobs_queue->push(job);
         }
         else{
             TileJob* job = new TileJob(this,i*tile_size,(i+1)*tile_size-1);
-            jobs_queue.push(job);
+            jobs_queue->push(job);
         }
 
     }
@@ -98,11 +103,11 @@ void Game::_step(uint curr_gen) {
     for ( int i=0 ; i < m_thread_num ; i ++ ){
         if (i == m_thread_num - 1){
             TileJob* job = new TileJob(this,i*tile_size,field_height-1);
-            jobs_queue.push(job);
+            jobs_queue->push(job);
         }
         else{
             TileJob* job = new TileJob(this,i*tile_size,(i+1)*tile_size-1);
-            jobs_queue.push(job);
+            jobs_queue->push(job);
         }
     }
     // Wait for the workers to finish calculating
@@ -118,17 +123,20 @@ void Game::_step(uint curr_gen) {
     // NOTE: Threads must not be started here - doing so will lead to a heavy penalty in your grade
 }
 
-void Game::_destroy_game(){
-	// Destroys board and frees all threads and resources 
-	// Not implemented in the Game's destructor for testing purposes. 
-	// All threads must be joined here
+void Game::_destroy_game() {
+    // Destroys board and frees all threads and resources
+    // Not implemented in the Game's destructor for testing purposes.
+    // All threads must be joined here
 
-	for (uint i = 0; i < m_thread_num; ++i) {
+    for (uint i = 0; i < m_thread_num; ++i) {
         m_threadpool[i]->join();
     }
-	delete curr;
-	delete next;
+
+    delete curr;
+    delete next;
+    delete jobs_queue;
 }
+
 
 /*--------------------------------------------------------------------------------
 								
