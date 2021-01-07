@@ -8,8 +8,6 @@ static const char *colors[7] = {BLACK, RED, GREEN, YELLOW, BLUE, MAGENTA, CYAN};
 --------------------------------------------------------------------------------*/
 
 void Game::run() {
-    cout << "DO I ET HERE " << endl ;
-
 	_init_game(); // Starts the threads and all other variables you need
 	print_board("Initial Board");
 	for (uint i = 0; i < m_gen_num; ++i) {
@@ -46,7 +44,6 @@ void Game::_init_game() {
         if (i == 0)
             field_width =  cur_line.size();
         for(int j=0;j<field_width;j++){
-            cout << cur_line[j] << endl;
 
             int num = std::stoi(cur_line[j]);
             cur_line_vals.push_back(num);

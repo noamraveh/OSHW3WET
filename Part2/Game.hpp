@@ -66,7 +66,8 @@ public:
 	Game(game_params params):m_gen_num (params.n_gen),m_thread_num(params.n_thread),
 	                        file_name(params.filename),interactive_on(params.interactive_on),
 	                        print_on(params.print_on),phase(1){
-	}
+
+    }
 	~Game() = default;
 	void run(); // Runs the game
 	const vector<double> gen_hist() const; // Returns the generation timing histogram
@@ -210,7 +211,7 @@ protected:
             game->tasksLeft--;
             pthread_mutex_unlock(&game->tasks_lock);
             job->perform_job();
-            delete job;
+           // delete job;
         }
         return;
     }
