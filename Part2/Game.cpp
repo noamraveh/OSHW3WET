@@ -18,14 +18,15 @@ void Game::run() {
 		print_board(nullptr);
 	} // generation loop
 	print_board("Final Board");
+	cout<<"FINAL"<<endl;
 	_destroy_game();
+	cout<<"DESTROY"<<endl;
 }
 
 void Game::_init_game() {
 	// Create game fields - Consider using utils:read_file, utils::split
     vector<string> all_lines = utils::read_lines(file_name);
 	field_height = all_lines.size() ;
-	cout<<"HEIGHT" << field_height<<endl;
     pthread_mutex_init(&tasks_lock, nullptr);
     pthread_cond_init(&phase_done, nullptr);
 	pthread_mutex_init(&lock, nullptr);
@@ -34,24 +35,22 @@ void Game::_init_game() {
     jobs_queue = new PCQueue<TileJob*>;
 
     vector<string> cur_line;
-    vector<unsigned int> cur_line_vals;
 
     // fill curr field with input, next remains zeros (will be updated in first move)
     for (int i=0 ;i<field_height;i++) {
         cur_line = utils::split(all_lines[i], ' ');
         if (i == 0){
             field_width = cur_line.size();
-            cout<< "WIDTH" << field_width<<endl;
         }
+        vector<unsigned int>* cur_line_vals = new vector<unsigned int>;
         for(int j=0;j<field_width;j++){
-
-            int num = std::stoi(cur_line[j]);
-            cur_line_vals.push_back(num);
-
+            unsigned int num = std::stoi(cur_line[j]);
+            cur_line_vals->push_back(num);
         }
-        curr->push_back(cur_line_vals);
-        next->push_back(cur_line_vals);
+        curr->push_back(*cur_line_vals);
+        next->push_back(*cur_line_vals);
     }
+
 
 	// Create & Start threads
 	m_thread_num = thread_num();
@@ -64,24 +63,28 @@ void Game::_init_game() {
 	// Testing of your implementation will presume all threads are started here
 }
 
+
 void Game::_step(uint curr_gen) {
     int tile_size = field_height/m_thread_num;
     jobs_completed = 0;
 //    int last_tile_size = tile_size + field_height%m_thread_num;
 //phase 1 jobs
     // Push jobs to queue
-
-
     for ( int i=0 ; i < m_thread_num ; i ++ ){
+        cout<<"HEREEE"<<endl;
         if (i == m_thread_num - 1){
             TileJob* job = new TileJob(this,i*tile_size,field_height-1);
+            cout<<"JOBADDUDDSFD"<<endl;
             jobs_queue->push(job);
+            cout<<"JOBADDED"<<endl;
         }
         else{
             TileJob* job = new TileJob(this,i*tile_size,(i+1)*tile_size-1);
-            jobs_queue->push(job);
-        }
+            cout<<"HEREREREE"<<endl;
 
+            jobs_queue->push(job);
+            cout<<"JOBADDED"<<endl;
+        }
     }
 	// Wait for the workers to finish calculating
 	pthread_mutex_lock(&lock);
@@ -92,6 +95,7 @@ void Game::_step(uint curr_gen) {
     jobs_completed = 0;
     pthread_mutex_unlock(&lock);
 	// Swap pointers between current and next field
+	cout<<"BBETWEEN"<<endl;
 	swap_fields();
 	// NOTE: Threads must not be started here - doing so will lead to a heavy penalty in your grade
 
@@ -120,6 +124,7 @@ void Game::_step(uint curr_gen) {
     // NOTE: Threads must not be started here - doing so will lead to a heavy penalty in your grade
 }
 
+
 void Game::_destroy_game() {
     // Destroys board and frees all threads and resources
     // Not implemented in the Game's destructor for testing purposes.
@@ -128,10 +133,15 @@ void Game::_destroy_game() {
     for (uint i = 0; i < m_thread_num; ++i) {
         m_threadpool[i]->join();
     }
-
+    cout<<"JOINED"<<endl;
+    //for (int i=0; i<field_height;i++){
+     //   delete &curr[i];
+       // delete &next[i];
+    //}
     delete curr;
     delete next;
     delete jobs_queue;
+    cout<<"END"<<endl;
 }
 
 
@@ -151,14 +161,7 @@ inline void Game::print_board(const char* header) {
 			cout << "<------------" << header << "------------>" << endl;
 
 
-        for (int i = 0; i < field_height; i++)
-        {
-            for (int j = 0; j < field_width; j++)
-            {
-                cout << (*curr)[i][j];
-            }
-            cout << endl;
-        }
+
 		// TODO: Print the board
 
 
