@@ -1,8 +1,8 @@
 #ifndef __THREAD_H
 #define __THREAD_H
 
-#include "Headers.hpp"
-#include "Game.hpp"
+#include "../Part1/Headers.hpp"
+#include "../Part2/Game.hpp"
 
 class Thread
 {

@@ -1,6 +1,6 @@
-#include "Game.hpp"
-#include "utils.hpp"
-#include "Thread.hpp"
+#include "../Part2/Game.hpp"
+#include "../Part2/utils.hpp"
+#include "../Part2/Thread.hpp"
 
 static const char *colors[7] = {BLACK, RED, GREEN, YELLOW, BLUE, MAGENTA, CYAN};
 /*--------------------------------------------------------------------------------
@@ -27,7 +27,7 @@ void Game::_init_game() {
 	// Create game fields - Consider using utils:read_file, utils::split
     vector<string> all_lines = utils::read_lines(file_name);
 	field_height = all_lines.size() ;
-	field_width =  all_lines.front().size();
+
     pthread_mutex_init(&tasks_lock, nullptr);
     pthread_cond_init(&phase_done, nullptr);
 	pthread_mutex_init(&lock, nullptr);
@@ -42,8 +42,11 @@ void Game::_init_game() {
     // fill curr field with input, next remains zeros (will be updated in first move)
     for (int i=0 ;i<field_height;i++){
         cur_line = utils::split(all_lines[i],' ');
+        if (i == 0)
+            field_width =  cur_line.size();
         for(int j=0;j<field_width;j++){
-            cur_line_vals.push_back(std::stoi(cur_line[j]));
+            int num = std::stoi(cur_line[j]);
+            cur_line_vals.push_back(num);
         }
         curr->push_back(cur_line_vals);
     }

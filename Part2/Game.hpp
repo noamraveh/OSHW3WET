@@ -2,9 +2,9 @@
 #define __GAMERUN_H
 #define BLANK 0
 #define NUM_SPECIES 7
-#include "Headers.hpp"
-#include "Thread.hpp"
-#include "PCQueue.hpp"
+#include "../Part1/Headers.hpp"
+#include "../Part2/Thread.hpp"
+#include "../Part1/PCQueue.hpp"
 #include <cmath>
 /*--------------------------------------------------------------------------------
 								  Species colors
