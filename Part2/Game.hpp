@@ -111,93 +111,19 @@ protected: // All members here are protected, instead of private for testing pur
 
 
 
-    bool on_board(int i, int j){
-        return (i >= 0 && i < field_height && j >= 0 && j < field_width);
-    }
+    bool on_board(int i, int j);
 
-    int count_live_neighbors(int i,int j,int* dominant){
-        vector<unsigned int> species_count (NUM_SPECIES+1,0);
-        int neighbors = 0;
-        for (int x = i-1 ; x <= i+1 ; x++){
-            for (int y = j-1 ; y <= j+1 ; y++){
-                if (x == i && y==j) //self
-                    continue;
-                if (on_board(x,y) && (*curr)[x][y] > 0 ) {
-                    neighbors++;
-                    if (neighbors <=3){
-                        species_count[(*curr)[x][y]] ++;
-                    }
-                    if (neighbors == 3) { // get dominant
-                       int max_species = 0;
-                       int max_count = 0;
-                       for (int species = 1; species <= NUM_SPECIES;species ++){
-                           if ((species * (species_count)[species]) > max_count){
-                               max_count = species * species_count[species];
-                               max_species = species;
-                           }
-                           *dominant = max_species;
-                       }
-                    }
-                }
-            }
-        }
-        return neighbors;
-    }
+    int count_live_neighbors(int i,int j,int* dominant);
 
-    void update_next_phase1(int i,int j,bool alive, int num_neighbors,int dominant){
-        if (alive && (num_neighbors == 2 || num_neighbors == 3)) // stay the same
-            (*next)[i][j] = (*curr)[i][j];
-        else if ((!alive) && num_neighbors == 3){ // birth
-            (*next)[i][j] = dominant;
-        }
-        else{
-            (*next)[i][j] = 0;
-        }
-    }
+    void update_next_phase1(int i,int j,bool alive, int num_neighbors,int dominant);
 
-    int new_species(int i,int j){
-        int sum = 0;
-        int num_alive = 0;
-        for (int x = i-1 ; x <= i+1 ; x++) {
-            for (int y = j - 1; y <= j + 1; y++) {
-                if (on_board(x,y) && (*curr)[x][y] != 0){
-                    num_alive ++;
-                    sum += (*curr)[x][y];
-                }
-            }
-        }
-        return round(double(sum)/num_alive);
-    }
-	void phase1(int start, int end){
+    int new_species(int i,int j);
 
+	void phase1(int start, int end);
 
-	    for (int i=start; i<=end;i++){
-	        for (int j=0; j<field_width; j++){
-	            bool alive = ((*curr)[i][j] != 0) ;
-	            int dominant = 0; // only relevant for case 1 - 3 neighbors, was dead
-	            int num_neighbors = count_live_neighbors(i,j,&dominant);
-	            update_next_phase1(i,j,alive,num_neighbors,dominant);
-	        }
-	    }
-	}
+    void phase2(int start, int end);
 
-    void phase2(int start, int end) {
-        for (int i = start; i <= end; i++) {
-            for (int j = 0; j < field_width; j++) {
-                if ((*curr)[i][j] != 0)
-                    (*next)[i][j] = new_species(i,j);
-                else
-                    (*next)[i][j] = 0;
-            }
-        }
-    }
-
-    void swap_fields(){
-        vector<vector<unsigned int>>* temp;
-        temp = curr;
-        curr = next;
-        next = temp;
-    }
+    void swap_fields();
 
 	// TODO: Add in your variables and synchronization primitives  
 
