@@ -44,7 +44,7 @@ public:
     void push(const T& item){
         pthread_mutex_lock(&mutex_);
         pro_waiting++;
-        while(pro_waiting + pro_in > 0 )
+        while(con_in + pro_in > 0 )
             pthread_cond_wait(&pro_c_,&mutex_);
         pro_waiting--;
         pro_in++;
