@@ -4,7 +4,7 @@
 
 static const char *colors[7] = {BLACK, RED, GREEN, YELLOW, BLUE, MAGENTA, CYAN};
 /*--------------------------------------------------------------------------------
-								
+
 --------------------------------------------------------------------------------*/
 
 void Game::run() {
@@ -12,15 +12,13 @@ void Game::run() {
 	print_board("Initial Board");
 	for (uint i = 0; i < m_gen_num; ++i) {
 		auto gen_start = std::chrono::system_clock::now();
-		_step(i); // Iterates a single generation 
+		_step(i); // Iterates a single generation
 		auto gen_end = std::chrono::system_clock::now();
 		m_gen_hist.push_back((double)std::chrono::duration_cast<std::chrono::microseconds>(gen_end - gen_start).count());
 		print_board(nullptr);
 	} // generation loop
 	print_board("Final Board");
-	cout<<"FINAL"<<endl;
 	_destroy_game();
-	cout<<"DESTROY"<<endl;
 }
 
 void Game::_init_game() {
@@ -70,20 +68,15 @@ void Game::_step(uint curr_gen) {
 //    int last_tile_size = tile_size + field_height%m_thread_num;
 //phase 1 jobs
     // Push jobs to queue
+
     for ( int i=0 ; i < m_thread_num ; i ++ ){
-        cout<<"HEREEE"<<endl;
         if (i == m_thread_num - 1){
             TileJob* job = new TileJob(this,i*tile_size,field_height-1);
-            cout<<"JOBADDUDDSFD"<<endl;
             jobs_queue->push(job);
-            cout<<"JOBADDED"<<endl;
         }
         else{
             TileJob* job = new TileJob(this,i*tile_size,(i+1)*tile_size-1);
-            cout<<"HEREREREE"<<endl;
-
             jobs_queue->push(job);
-            cout<<"JOBADDED"<<endl;
         }
     }
 	// Wait for the workers to finish calculating
@@ -95,7 +88,6 @@ void Game::_step(uint curr_gen) {
     jobs_completed = 0;
     pthread_mutex_unlock(&lock);
 	// Swap pointers between current and next field
-	cout<<"BBETWEEN"<<endl;
 	swap_fields();
 	// NOTE: Threads must not be started here - doing so will lead to a heavy penalty in your grade
 
@@ -111,6 +103,7 @@ void Game::_step(uint curr_gen) {
             jobs_queue->push(job);
         }
     }
+
     // Wait for the workers to finish calculating
     pthread_mutex_lock(&lock);
     while (jobs_completed < m_thread_num){ //phase not completed
@@ -133,7 +126,6 @@ void Game::_destroy_game() {
     for (uint i = 0; i < m_thread_num; ++i) {
         m_threadpool[i]->join();
     }
-    cout<<"JOINED"<<endl;
     //for (int i=0; i<field_height;i++){
      //   delete &curr[i];
        // delete &next[i];
@@ -141,7 +133,6 @@ void Game::_destroy_game() {
     delete curr;
     delete next;
     delete jobs_queue;
-    cout<<"END"<<endl;
 }
 
 
@@ -159,11 +150,6 @@ inline void Game::print_board(const char* header) {
 		// Print small header if needed
 		if (header != nullptr)
 			cout << "<------------" << header << "------------>" << endl;
-
-
-
-		// TODO: Print the board
-
 
         cout << u8"╔" << string(u8"═") * field_width << u8"╗" << endl;
         for (uint i = 0; i < field_height; ++i) {

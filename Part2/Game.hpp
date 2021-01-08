@@ -66,7 +66,6 @@ public:
 	Game(game_params params):m_gen_num (params.n_gen),m_thread_num(params.n_thread),
 	                        file_name(params.filename),interactive_on(params.interactive_on),
 	                        print_on(params.print_on),phase(1){
-	    cout<<"HERE"<<endl;
 
     }
 	~Game() = default;
@@ -133,7 +132,7 @@ protected: // All members here are protected, instead of private for testing pur
                        int max_count = 0;
                        for (int species = 1; species <= NUM_SPECIES;species ++){
                            if ((species * (species_count)[species]) > max_count){
-                               max_count = species_count[species];
+                               max_count = species * species_count[species];
                                max_species = species;
                            }
                            *dominant = max_species;
@@ -161,7 +160,7 @@ protected: // All members here are protected, instead of private for testing pur
         int num_alive = 0;
         for (int x = i-1 ; x <= i+1 ; x++) {
             for (int y = j - 1; y <= j + 1; y++) {
-                if ((*curr)[x][y] != 0){
+                if (on_board(x,y) && (*curr)[x][y] != 0){
                     num_alive ++;
                     sum += (*curr)[x][y];
                 }
@@ -170,7 +169,9 @@ protected: // All members here are protected, instead of private for testing pur
         return round(double(sum)/num_alive);
     }
 	void phase1(int start, int end){
-	    for (int i=start; i<end;i++){
+
+
+	    for (int i=start; i<=end;i++){
 	        for (int j=0; j<field_width; j++){
 	            bool alive = ((*curr)[i][j] != 0) ;
 	            int dominant = 0; // only relevant for case 1 - 3 neighbors, was dead
@@ -181,7 +182,7 @@ protected: // All members here are protected, instead of private for testing pur
 	}
 
     void phase2(int start, int end) {
-        for (int i = start; i < end; i++) {
+        for (int i = start; i <= end; i++) {
             for (int j = 0; j < field_width; j++) {
                 if ((*curr)[i][j] != 0)
                     (*next)[i][j] = new_species(i,j);
