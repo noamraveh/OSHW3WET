@@ -128,8 +128,6 @@ void Game::_destroy_game() {
 
     for (uint i = 0; i < m_thread_num; ++i) {
         m_threadpool[i]->join();
-        delete m_threadpool[i];
-
     }
     delete curr;
     delete next;
