@@ -1,6 +1,5 @@
 #include "../Part2/Game.hpp"
 #include "../Part2/utils.hpp"
-#include "../Part2/Thread.hpp"
 
 static const char *colors[7] = {BLACK, RED, GREEN, YELLOW, BLUE, MAGENTA, CYAN};
 /*--------------------------------------------------------------------------------
@@ -36,13 +35,13 @@ void Game::_init_game() {
     vector<string> cur_line;
 
     // fill curr field with input, next remains zeros (will be updated in first move)
-    for (int i=0 ;i<field_height;i++) {
+    for (uint i=0 ;i<field_height;i++) {
         cur_line = utils::split(all_lines[i], ' ');
         if (i == 0){
             field_width = cur_line.size();
         }
-        vector<unsigned int>* cur_line_vals = new vector<unsigned int>;
-        for(int j=0;j<field_width;j++){
+        auto cur_line_vals = new vector<unsigned int>;
+        for(uint j=0;j<field_width;j++){
             unsigned int num = std::stoi(cur_line[j]);
             cur_line_vals->push_back(num);
         }
@@ -54,8 +53,8 @@ void Game::_init_game() {
 	// Create & Start threads
 	m_thread_num = thread_num();
     tasksLeft = 2*m_thread_num*m_gen_num;
-    for (int i=0 ; i<m_thread_num ; i++){
-        Working_Thread* thread = new Working_Thread(i,this);
+    for (uint i=0 ; i<m_thread_num ; i++){
+        auto thread = new Working_Thread(i,this);
 	    thread->start();
 	    m_threadpool.push_back(thread);
 	}
@@ -64,19 +63,19 @@ void Game::_init_game() {
 
 
 void Game::_step(uint curr_gen) {
-    int tile_size = field_height/m_thread_num;
+    uint tile_size = field_height/m_thread_num;
     jobs_completed = 0;
 //    int last_tile_size = tile_size + field_height%m_thread_num;
 //phase 1 jobs
     // Push jobs to queue
 
-    for ( int i=0 ; i < m_thread_num ; i ++ ){
+    for ( uint i=0 ; i < m_thread_num ; i ++ ){
         if (i == m_thread_num - 1){
-            TileJob* job = new TileJob(this,i*tile_size,field_height-1);
+            auto job = new TileJob(this,i*tile_size,field_height-1);
             jobs_queue->push(job);
         }
         else{
-            TileJob* job = new TileJob(this,i*tile_size,(i+1)*tile_size-1);
+            auto job = new TileJob(this,i*tile_size,(i+1)*tile_size-1);
 
             jobs_queue->push(job);
         }
@@ -95,13 +94,13 @@ void Game::_step(uint curr_gen) {
 	// NOTE: Threads must not be started here - doing so will lead to a heavy penalty in your grade
 
 	//phase 2 jobs
-    for ( int i=0 ; i < m_thread_num ; i ++ ){
+    for ( uint i=0 ; i < m_thread_num ; i ++ ){
         if (i == m_thread_num - 1){
-            TileJob* job = new TileJob(this,i*tile_size,field_height-1);
+            auto job = new TileJob(this,i*tile_size,field_height-1);
             jobs_queue->push(job);
         }
         else{
-            TileJob* job = new TileJob(this,i*tile_size,(i+1)*tile_size-1);
+            auto job = new TileJob(this,i*tile_size,(i+1)*tile_size-1);
             jobs_queue->push(job);
         }
     }
@@ -176,7 +175,7 @@ const vector<double> Game::tile_hist() const {
     return m_tile_hist;
 }
 
-bool Game::on_board(int i, int j) {
+bool Game::on_board(uint i, uint j) {
     return (i >= 0 && i < field_height && j >= 0 && j < field_width);
 }
 
@@ -194,7 +193,7 @@ int Game::count_live_neighbors(int i, int j, int *dominant) {
                 }
                 if (neighbors == 3) { // get dominant
                     int max_species = 0;
-                    int max_count = 0;
+                    uint max_count = 0;
                     for (int species = 1; species <= NUM_SPECIES;species ++){
                         if ((species * (species_count)[species]) > max_count){
                             max_count = species * species_count[species];
@@ -234,11 +233,11 @@ int Game::new_species(int i, int j) {
     return round(double(sum)/num_alive);
 }
 
-void Game::phase1(int start, int end) {
+void Game::phase1(uint start, uint end) {
 
 
-    for (int i=start; i<=end;i++){
-        for (int j=0; j<field_width; j++){
+    for (uint i=start; i<=end;i++){
+        for (uint j=0; j<field_width; j++){
             bool alive = ((*curr)[i][j] != 0) ;
             int dominant = 0; // only relevant for case 1 - 3 neighbors, was dead
             int num_neighbors = count_live_neighbors(i,j,&dominant);
@@ -247,9 +246,9 @@ void Game::phase1(int start, int end) {
     }
 }
 
-void Game::phase2(int start, int end) {
-    for (int i = start; i <= end; i++) {
-        for (int j = 0; j < field_width; j++) {
+void Game::phase2(uint start, uint end) {
+    for (uint i = start; i <= end; i++) {
+        for (uint j = 0; j < field_width; j++) {
             if ((*curr)[i][j] != 0)
                 (*next)[i][j] = new_species(i,j);
             else

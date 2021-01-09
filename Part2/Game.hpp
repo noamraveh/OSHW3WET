@@ -1,6 +1,6 @@
 #ifndef __GAMERUN_H
 #define __GAMERUN_H
-#define BLANK 0
+
 #define NUM_SPECIES 7
 #include "../Part1/Headers.hpp"
 #include "../Part2/Thread.hpp"
@@ -47,10 +47,7 @@ public:
     };
 
 	Game(game_params params):m_gen_num (params.n_gen),m_thread_num(params.n_thread),
-	                        file_name(params.filename),interactive_on(params.interactive_on),
-	                        print_on(params.print_on),phase(1){
-
-    }
+	                        interactive_on(params.interactive_on),print_on(params.print_on),file_name(params.filename),phase(1){}
 	~Game() = default;
 	void run(); // Runs the game
 	const vector<double> gen_hist() const; // Returns the generation timing histogram
@@ -58,7 +55,7 @@ public:
 	uint thread_num() const;
     TileJob* getNextJob();
     pthread_mutex_t tasks_lock;
-	int tasksLeft;
+	uint tasksLeft;
 
 protected: // All members here are protected, instead of private for testing purposes
 
@@ -78,19 +75,19 @@ protected: // All members here are protected, instead of private for testing pur
 	bool interactive_on; // Controls interactive mode - that means, prints the board as an animation instead of a simple dump to STDOUT 
 	bool print_on; // Allows the printing of the board. Turn this off when you are checking performance (Dry 3, last question)
 	string file_name;
-	int field_height;
-	int field_width;
+	uint field_height;
+	uint field_width;
     vector<vector<unsigned int>>* curr;
     vector<vector<unsigned int>>* next;
     int phase;
-    int jobs_completed;
+    uint jobs_completed;
     pthread_cond_t phase_done;
     pthread_mutex_t lock;
     PCQueue<TileJob*>* jobs_queue;
 
 
 
-    bool on_board(int i, int j);
+    bool on_board(uint i, uint j);
 
     int count_live_neighbors(int i,int j,int* dominant);
 
@@ -98,9 +95,9 @@ protected: // All members here are protected, instead of private for testing pur
 
     int new_species(int i,int j);
 
-	void phase1(int start, int end);
+	void phase1(uint start, uint end);
 
-    void phase2(int start, int end);
+    void phase2(uint start, uint end);
 
     void swap_fields();
 
