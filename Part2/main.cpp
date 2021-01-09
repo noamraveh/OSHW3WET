@@ -9,8 +9,11 @@ static void calc_and_append_statistics(uint n_threads, const vector<double>& gen
 --------------------------------------------------------------------------------*/
 int main(int argc, char **argv) {
         game_params params = parse_input_args(argc, argv);
-        Game g(params);
-        g.run();
+        for (int i =0 ; i< 100 ; i++){
+            Game g(params);
+            g.run();
+        }
+
        // calc_and_append_statistics(g.thread_num(), g.gen_hist(), g.tile_hist());
 
 	return 0 ;
