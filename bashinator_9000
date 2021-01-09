@@ -1,5 +1,5 @@
 #!/bin/bash
-for file in "/home/student/work/technion_234123/hw3/wet3_files/Tools/example_IO_files/small.txt" "/home/student/work/technion_234123/hw3/wet3_files/Tools/example_IO_files/mid.txt" "/home/student/work/technion_234123/hw3/wet3_files/Tools/example_IO_files/big.txt"
+for file in "/home/student/Documents/wet3_files/Tools/example_IO_files/small.txt"
 do
   for threads in {1..100}
   do
