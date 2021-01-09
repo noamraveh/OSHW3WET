@@ -5,15 +5,15 @@ static inline void usage(const char* mes);
 static void calc_and_append_statistics(uint n_threads, const vector<double>& gen_hist, const vector<double>& tile_hist);
 
 /*--------------------------------------------------------------------------------
-										Main
+				 	 					Main
 --------------------------------------------------------------------------------*/
 int main(int argc, char **argv) {
+        game_params params = parse_input_args(argc, argv);
+        Game g(params);
+        g.run();
+       // calc_and_append_statistics(g.thread_num(), g.gen_hist(), g.tile_hist());
 
-	game_params params = parse_input_args(argc, argv);
-	Game g(params);
-	g.run();
-	calc_and_append_statistics(g.thread_num(), g.gen_hist(), g.tile_hist());
-	return 0;
+	return 0 ;
 }
 /*--------------------------------------------------------------------------------
 							 Auxiliary Implementation

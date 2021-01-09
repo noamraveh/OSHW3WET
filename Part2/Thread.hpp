@@ -2,7 +2,6 @@
 #define __THREAD_H
 
 #include "../Part1/Headers.hpp"
-#include "../Part2/Game.hpp"
 
 class Thread
 {

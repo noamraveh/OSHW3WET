@@ -13,7 +13,7 @@ void Game::run() {
 	for (uint i = 0; i < m_gen_num; ++i) {
 		auto gen_start = std::chrono::system_clock::now();
 		_step(i); // Iterates a single generation
-		auto gen_end = std::chrono::system_clock::now();
+        auto gen_end = std::chrono::system_clock::now();
 		m_gen_hist.push_back((double)std::chrono::duration_cast<std::chrono::microseconds>(gen_end - gen_start).count());
 		print_board(nullptr);
 	} // generation loop
@@ -31,6 +31,7 @@ void Game::_init_game() {
     curr = new vector<vector<unsigned int>> ;
     next = new vector<vector<unsigned int>> ;
     jobs_queue = new PCQueue<TileJob*>;
+
 
     vector<string> cur_line;
 
@@ -71,16 +72,24 @@ void Game::_step(uint curr_gen) {
 
     for ( int i=0 ; i < m_thread_num ; i ++ ){
         if (i == m_thread_num - 1){
+
             TileJob* job = new TileJob(this,i*tile_size,field_height-1);
+
             jobs_queue->push(job);
+
         }
         else{
             TileJob* job = new TileJob(this,i*tile_size,(i+1)*tile_size-1);
+
             jobs_queue->push(job);
+
+
         }
     }
-	// Wait for the workers to finish calculating
+
+    // Wait for the workers to finish calculating
 	pthread_mutex_lock(&lock);
+
     while (jobs_completed < m_thread_num){ //phase not completed
         pthread_cond_wait(&phase_done,&lock);
     }
@@ -123,6 +132,7 @@ void Game::_destroy_game() {
     // Not implemented in the Game's destructor for testing purposes.
     // All threads must be joined here
 
+
     for (uint i = 0; i < m_thread_num; ++i) {
         m_threadpool[i]->join();
     }
@@ -133,6 +143,7 @@ void Game::_destroy_game() {
     delete curr;
     delete next;
     delete jobs_queue;
+
 }
 
 
@@ -176,95 +187,6 @@ const vector<double> Game::gen_hist() const {
 }
 const vector<double> Game::tile_hist() const {
     return m_tile_hist;
-}
-
-int Game::count_live_neighbors(int i, int j, int *dominant) {
-    vector<unsigned int> species_count (NUM_SPECIES+1,0);
-    int neighbors = 0;
-    for (int x = i-1 ; x <= i+1 ; x++){
-        for (int y = j-1 ; y <= j+1 ; y++){
-            if (x == i && y==j) //self
-                continue;
-            if (on_board(x,y) && (*curr)[x][y] > 0 ) {
-                neighbors++;
-                if (neighbors <=3){
-                    species_count[(*curr)[x][y]] ++;
-                }
-                if (neighbors == 3) { // get dominant
-                    int max_species = 0;
-                    int max_count = 0;
-                    for (int species = 1; species <= NUM_SPECIES;species ++){
-                        if ((species * (species_count)[species]) > max_count){
-                            max_count = species * species_count[species];
-                            max_species = species;
-                        }
-                        *dominant = max_species;
-                    }
-                }
-            }
-        }
-    }
-    return neighbors;
-}
-
-bool Game::on_board(int i, int j) {
-    return (i >= 0 && i < field_height && j >= 0 && j < field_width);
-}
-
-void Game::update_next_phase1(int i, int j, bool alive, int num_neighbors, int dominant) {
-    if (alive && (num_neighbors == 2 || num_neighbors == 3)) // stay the same
-        (*next)[i][j] = (*curr)[i][j];
-    else if ((!alive) && num_neighbors == 3){ // birth
-        (*next)[i][j] = dominant;
-    }
-    else{
-        (*next)[i][j] = 0;
-    }
-}
-
-int Game::new_species(int i, int j) {
-    int sum = 0;
-    int num_alive = 0;
-    for (int x = i-1 ; x <= i+1 ; x++) {
-        for (int y = j - 1; y <= j + 1; y++) {
-            if (on_board(x,y) && (*curr)[x][y] != 0){
-                num_alive ++;
-                sum += (*curr)[x][y];
-            }
-        }
-    }
-    return round(double(sum)/num_alive);
-}
-
-void Game::phase1(int start, int end) {
-
-
-    for (int i=start; i<=end;i++){
-        for (int j=0; j<field_width; j++){
-            bool alive = ((*curr)[i][j] != 0) ;
-            int dominant = 0; // only relevant for case 1 - 3 neighbors, was dead
-            int num_neighbors = count_live_neighbors(i,j,&dominant);
-            update_next_phase1(i,j,alive,num_neighbors,dominant);
-        }
-    }
-}
-
-void Game::phase2(int start, int end) {
-    for (int i = start; i <= end; i++) {
-        for (int j = 0; j < field_width; j++) {
-            if ((*curr)[i][j] != 0)
-                (*next)[i][j] = new_species(i,j);
-            else
-                (*next)[i][j] = 0;
-        }
-    }
-}
-
-void Game::swap_fields() {
-    vector<vector<unsigned int>>* temp;
-    temp = curr;
-    curr = next;
-    next = temp;
 }
 
 
