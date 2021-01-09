@@ -12,11 +12,15 @@ public:
         pthread_cond_init(&con_c_, nullptr);
         pthread_mutex_init(&mutex_, nullptr);
     }
-    ~PCQueue(){
+    ~PCQueue(){/*
+        cout << "####entering PCQueue dtor#####"<<endl;
         pthread_mutex_destroy(&mutex_);
+        cout << "####success mutex destroy#####"<<endl;
         pthread_cond_destroy(&pro_c_);
+        cout << "####success pro_c destroy#####"<<endl;
         pthread_cond_destroy(&con_c_);
-    }
+        cout << "####success con_c destroy#####"<<endl;
+    */}
     // Blocks while queue is empty. When queue holds items, allows for a single
     // thread to enter and remove an item from the front of the queue and return it.
     // Assumes multiple consumers.
