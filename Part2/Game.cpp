@@ -72,21 +72,15 @@ void Game::_step(uint curr_gen) {
 
     for ( int i=0 ; i < m_thread_num ; i ++ ){
         if (i == m_thread_num - 1){
-
             TileJob* job = new TileJob(this,i*tile_size,field_height-1);
-
             jobs_queue->push(job);
-
         }
         else{
             TileJob* job = new TileJob(this,i*tile_size,(i+1)*tile_size-1);
 
             jobs_queue->push(job);
-
-
         }
     }
-
     // Wait for the workers to finish calculating
 	pthread_mutex_lock(&lock);
 
@@ -99,7 +93,6 @@ void Game::_step(uint curr_gen) {
 	// Swap pointers between current and next field
 	swap_fields();
 	// NOTE: Threads must not be started here - doing so will lead to a heavy penalty in your grade
-
 
 	//phase 2 jobs
     for ( int i=0 ; i < m_thread_num ; i ++ ){
@@ -135,17 +128,13 @@ void Game::_destroy_game() {
 
     for (uint i = 0; i < m_thread_num; ++i) {
         m_threadpool[i]->join();
+        delete m_threadpool[i];
+
     }
-    //for (int i=0; i<field_height;i++){
-     //   delete &curr[i];
-       // delete &next[i];
-    //}
     delete curr;
     delete next;
     delete jobs_queue;
-
 }
-
 
 /*--------------------------------------------------------------------------------
 								

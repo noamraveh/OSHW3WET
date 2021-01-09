@@ -94,7 +94,7 @@ protected: // All members here are protected, instead of private for testing pur
 	vector<double> m_tile_hist; 	 // Shared Timing history for tiles: First (2 * m_gen_num) cells are the calculation durations for tiles in generation 1 and so on. 
 							   	 // Note: In your implementation, all m_thread_num threads must write to this structure. 
 	vector<double> m_gen_hist;  	 // Timing history for generations: x=m_gen_hist[t] iff generation t was calculated in x microseconds
-	vector<Thread*> m_threadpool; // A storage container for your threads. This acts as the threadpool. 
+	vector<Thread*> m_threadpool; // A storage container for your threads. This acts as the threadpool.
 
 	bool interactive_on; // Controls interactive mode - that means, prints the board as an animation instead of a simple dump to STDOUT 
 	bool print_on; // Allows the printing of the board. Turn this off when you are checking performance (Dry 3, last question)
@@ -207,14 +207,14 @@ protected: // All members here are protected, instead of private for testing pur
 class Working_Thread : public Thread {
 protected:
     void thread_workload() override {
+        pthread_mutex_lock(&game->tasks_lock);
         while (game->tasksLeft){
-            pthread_mutex_lock(&game->tasks_lock);
             Game::TileJob *job = game->getNextJob();
             game->tasksLeft--;
-            pthread_mutex_unlock(&game->tasks_lock);
             job->perform_job();
             delete job;
         }
+        pthread_mutex_unlock(&game->tasks_lock);
         return;
     }
 public:
